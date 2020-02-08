@@ -1,6 +1,5 @@
 package sda.tema.SDA_Tema_4.controller.web.payload;
 
-import javax.persistence.Column;
 import java.io.Serializable;
 
 public class TripDtoResponse implements Serializable {
@@ -13,8 +12,7 @@ public class TripDtoResponse implements Serializable {
             airportNameReturn,
             flightNumberDeparture,
             flightNumberReturn;
-    private Integer numberOfDoubleRooms, numberOfSingleRooms, amount;
-    private Boolean extraBed;
+    private Integer numberOfDoubleRooms, numberOfSingleRooms, amount, extraBed;
 
     private Long roomId;
 
@@ -114,11 +112,11 @@ public class TripDtoResponse implements Serializable {
         this.amount = amount;
     }
 
-    public Boolean getExtraBed() {
+    public Integer getExtraBed() {
         return extraBed;
     }
 
-    public void setExtraBed(Boolean extraBed) {
+    public void setExtraBed(Integer extraBed) {
         this.extraBed = extraBed;
     }
 }

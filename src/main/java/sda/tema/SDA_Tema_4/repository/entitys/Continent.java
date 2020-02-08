@@ -50,9 +50,9 @@ public class Continent extends BaseEntity {
 
     @Override
     public String toString() {
+        //                ", listOfCountries=" + listOfCountries +
         return "Continent{" +
                 "name='" + name + '\'' +
-                ", listOfCountries=" + listOfCountries +
                 '}';
     }
 }

@@ -35,4 +35,5 @@ public interface TripDao extends CrudRepository<Trip, Long> {
                                         @Param("departureFlightNumber") String departureFlightNumber,
                                         @Param("returnFlightNumber") String returnFlightNumber);
 
+
 }

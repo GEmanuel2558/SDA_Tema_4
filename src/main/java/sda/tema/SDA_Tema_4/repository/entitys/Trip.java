@@ -155,7 +155,7 @@ public class Trip extends BaseEntity {
         return Objects.hash(super.hashCode(), flightIdDeparture, flightIdReturn, hotel, checkinFromHotel, checkoutFromHotel, promoted, listOfTripDetails);
     }
 
-    @Override
+/*    @Override
     public String toString() {
         return "Trip{" +
                 "flightIdDeparture=" + flightIdDeparture +
@@ -166,5 +166,5 @@ public class Trip extends BaseEntity {
                 ", promoted=" + promoted +
                 ", listOfTripDetails=" + listOfTripDetails +
                 '}';
-    }
+    }*/
 }

@@ -1,6 +1,5 @@
 package sda.tema.SDA_Tema_4.business;
 
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +18,15 @@ import java.util.Optional;
 public class TripService {
 
     private final TripDao tripDao;
+    private final RoomService roomService;
 
-    public TripService(TripDao tripDao) {
+    public TripService(TripDao tripDao,
+                       RoomService roomService) {
         this.tripDao = tripDao;
+        this.roomService = roomService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public List<TripDtoResponse> findTrip(TripDtoRequest request) throws IOException {
         List<Trip> listOfTrips = tripDao.findTripByCriteria(request.getFromDate(),
                 request.getToDate(),
@@ -51,11 +53,36 @@ public class TripService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     Optional<Trip> findTripIdByCriteria(String hotelName,
                                         String departureFlightNumber,
                                         String returnFlightNumber) {
         return this.tripDao.findTripIdByCriteria(hotelName, departureFlightNumber, returnFlightNumber);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void decrementTheNumberOfRooms(Long id,
+                                          final Integer numberOfDoubleRooms,
+                                          final Integer numberOfSingleRooms,
+                                          final Integer extraBed) throws IOException {
+
+        this.tripDao.findById(id).map(trip -> trip.getHotel()
+                .getListOfRooms()
+                .stream()
+                .filter(room -> (null == numberOfDoubleRooms || room.getNumberOfAvailableDoubleRoom() >= numberOfDoubleRooms)
+                        && (null == numberOfSingleRooms || room.getNumberOfAvailableSingleRoom() >= numberOfSingleRooms)
+                        && (null == extraBed || room.getNumberOfExtraBeds() >= extraBed))
+                .findFirst()).map(roomWrapper -> {
+            roomWrapper.map(room -> {
+                room.decrementTheNumberOfDoubleRoomsBy(numberOfDoubleRooms);
+                room.decrementTheNumberOfSingleRoomsBy(numberOfSingleRooms);
+                room.decrementTheNumberOfExtraBedsBy(extraBed);
+                roomService.updateRoom(room.getId(), room);
+                return true;
+            });
+            return true;
+        }).orElseThrow(() -> new IOException("Unknown trip id"));
+
     }
 
 

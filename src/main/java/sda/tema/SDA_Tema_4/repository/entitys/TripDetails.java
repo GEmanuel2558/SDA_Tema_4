@@ -10,14 +10,14 @@ import java.util.Objects;
 @Table(name = "Trip_Details")
 public class TripDetails extends BaseEntity {
 
-    @Column
-    private Integer number_of_double_rooms;
+    @Column(name = "number_of_double_rooms")
+    private Integer numberOfDoubleRooms;
 
-    @Column
-    private Integer number_of_single_rooms;
+    @Column(name = "number_of_single_rooms")
+    private Integer numberOfSingleRooms;
 
-    @Column
-    private Boolean extra_bed;
+    @Column(name = "extra_bed")
+    private Boolean extraBed;
 
     @Column
     private Integer amount;
@@ -30,28 +30,28 @@ public class TripDetails extends BaseEntity {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_trip_details_user"))
     private List<User> listOfUsers;
 
-    public Integer getNumber_of_double_rooms() {
-        return number_of_double_rooms;
+    public Integer getNumberOfDoubleRooms() {
+        return numberOfDoubleRooms;
     }
 
-    public void setNumber_of_double_rooms(Integer number_of_double_rooms) {
-        this.number_of_double_rooms = number_of_double_rooms;
+    public void setNumberOfDoubleRooms(Integer number_of_double_rooms) {
+        this.numberOfDoubleRooms = number_of_double_rooms;
     }
 
-    public Integer getNumber_of_single_rooms() {
-        return number_of_single_rooms;
+    public Integer getNumberOfSingleRooms() {
+        return numberOfSingleRooms;
     }
 
-    public void setNumber_of_single_rooms(Integer number_of_single_rooms) {
-        this.number_of_single_rooms = number_of_single_rooms;
+    public void setNumberOfSingleRooms(Integer number_of_single_rooms) {
+        this.numberOfSingleRooms = number_of_single_rooms;
     }
 
-    public Boolean getExtra_bed() {
-        return extra_bed;
+    public Boolean getExtraBed() {
+        return extraBed;
     }
 
-    public void setExtra_bed(Boolean extra_bed) {
-        this.extra_bed = extra_bed;
+    public void setExtraBed(Boolean extra_bed) {
+        this.extraBed = extra_bed;
     }
 
     public Integer getAmount() {
@@ -84,9 +84,9 @@ public class TripDetails extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         TripDetails that = (TripDetails) o;
-        return Objects.equals(number_of_double_rooms, that.number_of_double_rooms) &&
-                Objects.equals(number_of_single_rooms, that.number_of_single_rooms) &&
-                Objects.equals(extra_bed, that.extra_bed) &&
+        return Objects.equals(numberOfDoubleRooms, that.numberOfDoubleRooms) &&
+                Objects.equals(numberOfSingleRooms, that.numberOfSingleRooms) &&
+                Objects.equals(extraBed, that.extraBed) &&
                 Objects.equals(amount, that.amount) &&
                 Objects.equals(trip, that.trip) &&
                 Objects.equals(listOfUsers, that.listOfUsers);
@@ -94,15 +94,15 @@ public class TripDetails extends BaseEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), number_of_double_rooms, number_of_single_rooms, extra_bed, amount, trip, listOfUsers);
+        return Objects.hash(super.hashCode(), numberOfDoubleRooms, numberOfSingleRooms, extraBed, amount, trip, listOfUsers);
     }
 
     @Override
     public String toString() {
         return "TripDetails{" +
-                "number_of_double_rooms=" + number_of_double_rooms +
-                ", number_of_single_rooms=" + number_of_single_rooms +
-                ", extra_bed=" + extra_bed +
+                "number_of_double_rooms=" + numberOfDoubleRooms +
+                ", number_of_single_rooms=" + numberOfSingleRooms +
+                ", extra_bed=" + extraBed +
                 ", amount=" + amount +
                 ", trip=" + trip +
                 ", listOfUsers=" + listOfUsers +

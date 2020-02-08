@@ -110,6 +110,21 @@ public class Room extends BaseEntity {
         this.hotel = hotel;
     }
 
+    @Transient
+    public void decrementTheNumberOfDoubleRoomsBy(Integer decrementBy) {
+        this.numberOfAvailableDoubleRoom -= decrementBy;
+    }
+
+    @Transient
+    public void decrementTheNumberOfSingleRoomsBy(Integer decrementBy) {
+        this.numberOfAvailableSingleRoom -= decrementBy;
+    }
+
+    @Transient
+    public void decrementTheNumberOfExtraBedsBy(Integer decrementBy) {
+        this.numberOfExtraBeds -= decrementBy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

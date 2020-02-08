@@ -94,7 +94,7 @@ public class Hotel extends BaseEntity {
         return Objects.hash(super.hashCode(), name, description, standard, city, listOfRooms, listOfTrips);
     }
 
-    @Override
+/*    @Override
     public String toString() {
         return "Hotel{" +
                 "name='" + name + '\'' +
@@ -104,5 +104,5 @@ public class Hotel extends BaseEntity {
                 ", listOfRooms=" + listOfRooms +
                 ", listOfTrips=" + listOfTrips +
                 '}';
-    }
+    }*/
 }
