@@ -16,6 +16,7 @@ public class UserService {
     public UserService(UserDao userDao) {
         this.userDao = userDao;
     }
+
     @Transactional(readOnly = true)
     public Optional<User> findUserByEmail(@NotNull String email) {
         return this.userDao.findByEmail(email);
