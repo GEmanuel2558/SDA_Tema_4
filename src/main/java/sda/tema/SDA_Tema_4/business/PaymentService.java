@@ -42,7 +42,11 @@ public class PaymentService {
 
         return tripWrapper.map(trip -> this.userService.findUserByEmail(userEmail).map(currentUser -> {
             Integer amountWithDiscount = DiscountHelper.getInstance().getDiscountByAmount(currentUser.getTotalAmount());
-            currentUser.setTotalAmount(currentUser.getTotalAmount() + currentUser.getTotalAmount());
+            if (null == currentUser.getTotalAmount()) {
+                currentUser.setTotalAmount(amountWithDiscount);
+            } else {
+                currentUser.setTotalAmount(currentUser.getTotalAmount() + currentUser.getTotalAmount());
+            }
             buyTicket.setAmount(amountWithDiscount);
             return tripDetailsService.insertNewTripDetails(buyTicket, trip, currentUser);
         }).map(theTripId -> {

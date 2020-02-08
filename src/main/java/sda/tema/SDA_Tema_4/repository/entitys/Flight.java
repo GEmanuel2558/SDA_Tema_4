@@ -18,7 +18,7 @@ public class Flight extends BaseEntity {
     @Column(name = "number_of_seets")
     private Integer totalNumberOfSeets;
 
-    @Column(name = "retailabe_seats")
+    @Column(name = "retailabe_seats", columnDefinition = "INT check (retailabe_seats > 0)")
     private Integer retailabeSeats;
 
     @Column(name = "flight_price")

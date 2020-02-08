@@ -3,6 +3,7 @@ package sda.tema.SDA_Tema_4.repository.entitys;
 import sda.tema.SDA_Tema_4.security.entitys.User;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +30,9 @@ public class TripDetails extends BaseEntity {
     @ManyToMany
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_trip_details_user"))
     private List<User> listOfUsers;
+
+    @Column(name = "created_row")
+    private Date createdRow;
 
     public Integer getNumberOfDoubleRooms() {
         return numberOfDoubleRooms;
@@ -78,6 +82,14 @@ public class TripDetails extends BaseEntity {
         this.listOfUsers = listOfUsers;
     }
 
+    public Date getCreatedRow() {
+        return createdRow;
+    }
+
+    public void setCreatedRow(Date createdRow) {
+        this.createdRow = createdRow;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,23 +101,25 @@ public class TripDetails extends BaseEntity {
                 Objects.equals(extraBed, that.extraBed) &&
                 Objects.equals(amount, that.amount) &&
                 Objects.equals(trip, that.trip) &&
-                Objects.equals(listOfUsers, that.listOfUsers);
+                Objects.equals(listOfUsers, that.listOfUsers) &&
+                Objects.equals(createdRow, that.createdRow);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), numberOfDoubleRooms, numberOfSingleRooms, extraBed, amount, trip, listOfUsers);
+        return Objects.hash(super.hashCode(), numberOfDoubleRooms, numberOfSingleRooms, extraBed, amount, trip, listOfUsers, createdRow);
     }
 
     @Override
     public String toString() {
         return "TripDetails{" +
-                "number_of_double_rooms=" + numberOfDoubleRooms +
-                ", number_of_single_rooms=" + numberOfSingleRooms +
-                ", extra_bed=" + extraBed +
+                "numberOfDoubleRooms=" + numberOfDoubleRooms +
+                ", numberOfSingleRooms=" + numberOfSingleRooms +
+                ", extraBed=" + extraBed +
                 ", amount=" + amount +
                 ", trip=" + trip +
                 ", listOfUsers=" + listOfUsers +
+                ", createdRow=" + createdRow +
                 '}';
     }
 }

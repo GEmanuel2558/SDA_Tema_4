@@ -31,7 +31,7 @@ public class BuyingTicketController {
         if (PaymentService.DEFAULT_ID.equals(tripId)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } else {
-            return ResponseEntity.created(URI.create("buy.ticket/" + tripId)).build();
+            return ResponseEntity.created(URI.create("http://localhost:8080/trip.details/" + tripId)).build();
         }
     }
 
