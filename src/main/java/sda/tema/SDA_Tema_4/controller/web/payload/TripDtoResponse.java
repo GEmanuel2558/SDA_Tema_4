@@ -12,7 +12,7 @@ public class TripDtoResponse implements Serializable {
             airportNameReturn,
             flightNumberDeparture,
             flightNumberReturn;
-    private Integer numberOfDoubleRooms, numberOfSingleRooms, amount, extraBed;
+    private Integer numberOfDoubleRooms, numberOfSingleRooms, amount, extraBed, numberOfPersons;
 
     private Long roomId;
 
@@ -118,5 +118,13 @@ public class TripDtoResponse implements Serializable {
 
     public void setExtraBed(Integer extraBed) {
         this.extraBed = extraBed;
+    }
+
+    public Integer getNumberOfPersons() {
+        return numberOfPersons;
+    }
+
+    public void setNumberOfPersons(Integer numberOfPersons) {
+        this.numberOfPersons = numberOfPersons;
     }
 }
