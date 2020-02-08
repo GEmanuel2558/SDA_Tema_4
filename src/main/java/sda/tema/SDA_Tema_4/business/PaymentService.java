@@ -3,6 +3,8 @@ package sda.tema.SDA_Tema_4.business;
 import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
 import sda.tema.SDA_Tema_4.repository.dao.TripDao;
 import sda.tema.SDA_Tema_4.repository.dao.TripDetailsDao;
@@ -18,24 +20,26 @@ import java.util.Optional;
 @Service
 public class PaymentService {
 
-    private final TripDao tripDao;
-    private final TripDetailsDao tripDetailsDao;
-    private final UserDao userDao;
+    private final TripService tripService;
+    private final TripDetailsService tripDetailsService;
+    private final UserService userService;
 
-    public PaymentService(TripDao tripDao,
-                          TripDetailsDao tripDetailsDao,
-                          UserDao userDao) {
-        this.tripDao = tripDao;
-        this.tripDetailsDao = tripDetailsDao;
-        this.userDao = userDao;
+    public PaymentService(UserService userService,
+                          TripService tripService,
+                          TripDetailsService tripDetailsService) {
+        this.userService = userService;
+        this.tripService = tripService;
+        this.tripDetailsService = tripDetailsService;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean buyTicket(TripDtoResponse buyTicket, String userEmail) {
-        Optional<Trip> tripWrapper = tripDao.findTripIdByCriteria(buyTicket.getHotelName(),
+
+        Optional<Trip> tripWrapper = tripService.findTripIdByCriteria(buyTicket.getHotelName(),
                 buyTicket.getFlightNumberDeparture(),
                 buyTicket.getFlightNumberReturn());
 
-        return tripWrapper.map(trip -> this.userDao.findByEmail(userEmail).map(currentUser -> {
+        return tripWrapper.map(trip -> this.userService.findUserByEmail(userEmail).map(currentUser -> {
             TripDetails tripDetails = new TripDetails();
             tripDetails.setTrip(trip);
             tripDetails.setExtra_bed(buyTicket.getExtraBed());
@@ -43,7 +47,7 @@ public class PaymentService {
             tripDetails.setNumber_of_double_rooms(buyTicket.getNumberOfDoubleRooms());
             tripDetails.setNumber_of_single_rooms(buyTicket.getNumberOfSingleRooms());
             tripDetails.setListOfUsers(Collections.singletonList(currentUser));
-            tripDetailsDao.save(tripDetails);
+            tripDetailsService.insertNewTripDetails(tripDetails);
             return true;
         }).orElse(false)).orElse(false);
     }

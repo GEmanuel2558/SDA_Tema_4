@@ -1,5 +1,6 @@
 package sda.tema.SDA_Tema_4.business;
 
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -49,7 +51,12 @@ public class TripService {
         }
     }
 
-
+    @Transactional(readOnly = true)
+    Optional<Trip> findTripIdByCriteria(String hotelName,
+                                        String departureFlightNumber,
+                                        String returnFlightNumber) {
+        return this.tripDao.findTripIdByCriteria(hotelName, departureFlightNumber, returnFlightNumber);
+    }
 
 
     /*cross origin resourcer, database replication, load balancing (nginx), high available, provisioning tools, service discovery (consul, eureka),
