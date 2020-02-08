@@ -15,7 +15,7 @@ public class RoomService {
         this.roomDao = roomDao;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.MANDATORY)
     public Integer updateRoom(final Long idToUpdate, final Room updateEntity) {
         return roomDao.updateRoom(idToUpdate,
                 updateEntity.getNumberOfAvailableSingleRoom(),

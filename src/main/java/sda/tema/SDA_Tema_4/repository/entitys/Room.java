@@ -112,17 +112,17 @@ public class Room extends BaseEntity {
 
     @Transient
     public void decrementTheNumberOfDoubleRoomsBy(Integer decrementBy) {
-        this.numberOfAvailableDoubleRoom -= decrementBy;
+        this.numberOfAvailableDoubleRoom = this.numberOfAvailableDoubleRoom - decrementBy;
     }
 
     @Transient
     public void decrementTheNumberOfSingleRoomsBy(Integer decrementBy) {
-        this.numberOfAvailableSingleRoom -= decrementBy;
+        this.numberOfAvailableSingleRoom = this.numberOfAvailableSingleRoom - decrementBy;
     }
 
     @Transient
     public void decrementTheNumberOfExtraBedsBy(Integer decrementBy) {
-        this.numberOfExtraBeds -= decrementBy;
+        this.numberOfExtraBeds = this.numberOfExtraBeds - decrementBy;
     }
 
     @Override

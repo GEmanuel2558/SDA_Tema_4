@@ -74,9 +74,10 @@ public class TripService {
                         && (null == extraBed || room.getNumberOfExtraBeds() >= extraBed))
                 .findFirst()).map(roomWrapper -> {
             roomWrapper.map(room -> {
-                room.decrementTheNumberOfDoubleRoomsBy(numberOfDoubleRooms);
-                room.decrementTheNumberOfSingleRoomsBy(numberOfSingleRooms);
-                room.decrementTheNumberOfExtraBedsBy(extraBed);
+                System.out.println("Decrement the number of rooms for the id = " + room.getId());
+                room.setNumberOfAvailableDoubleRoom(room.getNumberOfAvailableDoubleRoom() - numberOfDoubleRooms);
+                room.setNumberOfAvailableSingleRoom(room.getNumberOfAvailableSingleRoom() - numberOfSingleRooms);
+                room.setNumberOfExtraBeds(room.getNumberOfExtraBeds() - extraBed);
                 roomService.updateRoom(room.getId(), room);
                 return true;
             });

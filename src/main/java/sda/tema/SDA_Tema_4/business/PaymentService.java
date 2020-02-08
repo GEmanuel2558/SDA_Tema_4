@@ -1,17 +1,13 @@
 package sda.tema.SDA_Tema_4.business;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
-import sda.tema.SDA_Tema_4.repository.entitys.TripDetails;
-import sda.tema.SDA_Tema_4.security.entitys.User;
 import sda.tema.SDA_Tema_4.utils.DiscountHelper;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -35,11 +31,9 @@ public class PaymentService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long buyTicket(final TripDtoResponse buyTicket, final String userEmail) {
-
         Optional<Trip> tripWrapper = tripService.findTripIdByCriteria(buyTicket.getHotelName(),
                 buyTicket.getFlightNumberDeparture(),
                 buyTicket.getFlightNumberReturn());
-
         return tripWrapper.map(trip -> this.userService.findUserByEmail(userEmail).map(currentUser -> {
             Integer amountWithDiscount = DiscountHelper.getInstance().getDiscountByAmount(currentUser.getTotalAmount());
             if (null == currentUser.getTotalAmount()) {
@@ -54,23 +48,29 @@ public class PaymentService {
                 try {
                     flightService.decrementNumberOfSeats(buyTicket.getFlightNumberDeparture(), buyTicket.getNumberOfPersons());
                     flightService.decrementNumberOfSeats(buyTicket.getFlightNumberReturn(), buyTicket.getNumberOfPersons());
+                    return theTripId;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return DEFAULT_ID;
                 }
+            } else {
+                return theTripId;
             }
-            return theTripId;
         }).map(theTripId -> {
             if (!DEFAULT_ID.equals(theTripId)) {
                 try {
                     tripService.decrementTheNumberOfRooms(tripWrapper.get().getId(),
                             buyTicket.getNumberOfDoubleRooms(),
-                            buyTicket.getNumberOfDoubleRooms(),
+                            buyTicket.getNumberOfSingleRooms(),
                             buyTicket.getExtraBed());
+                    return theTripId;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return DEFAULT_ID;
                 }
+            } else {
+                return theTripId;
             }
-            return theTripId;
         }).orElse(DEFAULT_ID)).orElse(DEFAULT_ID);
     }
 

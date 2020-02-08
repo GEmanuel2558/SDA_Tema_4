@@ -13,6 +13,7 @@ import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
 import sda.tema.SDA_Tema_4.security.UserPrincipal;
 
 import java.net.URI;
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/buy.ticket")
@@ -27,12 +28,17 @@ public class BuyingTicketController {
     @PostMapping(value = "/payment")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> buyTicket(@RequestBody TripDtoResponse buyTicket, Authentication authentication) {
-        Long tripId = paymentService.buyTicket(buyTicket, ((UserPrincipal) authentication.getPrincipal()).getEmail());
-        if (PaymentService.DEFAULT_ID.equals(tripId)) {
+        //try {
+            Long tripId = paymentService.buyTicket(buyTicket, ((UserPrincipal) authentication.getPrincipal()).getEmail());
+            if (PaymentService.DEFAULT_ID.equals(tripId)) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            } else {
+                return ResponseEntity.created(URI.create("http://localhost:8080/trip.details/" + tripId)).build();
+            }
+/*        } catch (Throwable e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } else {
-            return ResponseEntity.created(URI.create("http://localhost:8080/trip.details/" + tripId)).build();
-        }
+        }*/
     }
 
 }
