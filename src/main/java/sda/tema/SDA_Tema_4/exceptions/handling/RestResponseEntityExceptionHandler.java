@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import sda.tema.SDA_Tema_4.exceptions.BuyTicketHadFailed;
-import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappeared;
+import sda.tema.SDA_Tema_4.exceptions.BuyTicketHadFailedException;
+import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappearedException;
 import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
+import sda.tema.SDA_Tema_4.exceptions.NoTripsForTheSpecifiedPropertiesException;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -32,16 +33,22 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(FlightHadDisappeared.class)
-    public ResponseEntity<Object> handleNoMoreRooms(FlightHadDisappeared ex, WebRequest request) {
+    @ExceptionHandler(FlightHadDisappearedException.class)
+    public ResponseEntity<Object> handleNoMoreRooms(FlightHadDisappearedException ex, WebRequest request) {
         return handleExceptionInternal(ex, "The selected flight no longer is available. Please reload the page!",
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(BuyTicketHadFailed.class)
-    public ResponseEntity<Object> handleNoMoreRooms(BuyTicketHadFailed ex, WebRequest request) {
+    @ExceptionHandler(BuyTicketHadFailedException.class)
+    public ResponseEntity<Object> handleNoMoreRooms(BuyTicketHadFailedException ex, WebRequest request) {
         return handleExceptionInternal(ex, "The buy ticket service is shutdown down. Please try later!",
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(NoTripsForTheSpecifiedPropertiesException.class)
+    public ResponseEntity<Object> handleNoTripsFoundInTheDb(NoTripsForTheSpecifiedPropertiesException ex, WebRequest request) {
+        return handleExceptionInternal(ex, "No trips could be found in the DB fror the specified values",
+                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
 }

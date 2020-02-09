@@ -8,11 +8,11 @@ import java.util.Objects;
 public class CountryDto implements Serializable {
 
     private String name;
-    private ContinentDto continent;
+    private ContinentDtoResponse continent;
 
     public CountryDto(final Country country) {
         this.name = country.getName();
-        continent = new ContinentDto(country.getContinent());
+        continent = new ContinentDtoResponse(country.getContinent());
     }
 
     public String getName() {
@@ -23,11 +23,11 @@ public class CountryDto implements Serializable {
         this.name = name;
     }
 
-    public ContinentDto getContinent() {
+    public ContinentDtoResponse getContinent() {
         return continent;
     }
 
-    public void setContinent(ContinentDto continent) {
+    public void setContinent(ContinentDtoResponse continent) {
         this.continent = continent;
     }
 

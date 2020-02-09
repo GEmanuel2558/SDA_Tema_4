@@ -4,11 +4,11 @@ import sda.tema.SDA_Tema_4.repository.entitys.Continent;
 
 import java.io.Serializable;
 
-public class ContinentDto implements Serializable {
+public class ContinentDtoResponse implements Serializable {
 
     private String name;
 
-    public ContinentDto(final Continent continent) {
+    public ContinentDtoResponse(final Continent continent) {
         this.name = continent.getName();
     }
 

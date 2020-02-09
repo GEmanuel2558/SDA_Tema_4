@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
-import sda.tema.SDA_Tema_4.exceptions.BuyTicketHadFailed;
-import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappeared;
+import sda.tema.SDA_Tema_4.exceptions.BuyTicketHadFailedException;
+import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappearedException;
 import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 import sda.tema.SDA_Tema_4.utils.DiscountHelper;
@@ -31,8 +31,8 @@ public class PaymentService {
         this.flightService = flightService;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {BuyTicketHadFailed.class,
-            FlightHadDisappeared.class, NoMoreHotelRoomsException.class})
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {BuyTicketHadFailedException.class,
+            FlightHadDisappearedException.class, NoMoreHotelRoomsException.class})
     public Long buyTicket(final TripDtoResponse buyTicket, final String userEmail) {
         Optional<Trip> tripWrapper = tripService.findTripIdByCriteria(buyTicket.getHotelName(),
                 buyTicket.getFlightNumberDeparture(),
@@ -56,7 +56,7 @@ public class PaymentService {
                     buyTicket.getNumberOfSingleRooms(),
                     buyTicket.getExtraBed());
             return theTripId;
-        }).orElseThrow(BuyTicketHadFailed::new)).orElseThrow(BuyTicketHadFailed::new);
+        }).orElseThrow(BuyTicketHadFailedException::new)).orElseThrow(BuyTicketHadFailedException::new);
     }
 
     /*De citit despte git hook-uri*/

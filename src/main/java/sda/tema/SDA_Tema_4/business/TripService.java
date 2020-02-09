@@ -1,6 +1,5 @@
 package sda.tema.SDA_Tema_4.business;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
@@ -8,13 +7,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDto;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoRequest;
-import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
 import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
+import sda.tema.SDA_Tema_4.exceptions.NoTripsForTheSpecifiedPropertiesException;
 import sda.tema.SDA_Tema_4.repository.dao.TripDao;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,29 +30,21 @@ public class TripService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public List<TripDtoResponse> findTrip(TripDtoRequest request) throws IOException {
+    public List<TripDto> findTripsByCriteria(Pageable pageable, TripDtoRequest request) {
         List<Trip> listOfTrips = tripDao.findTripByCriteria(request.getFromDate(),
                 request.getToDate(),
                 request.getHotelName(),
                 request.getCityName(),
                 request.getNrOfPersons());
+
         if (null != listOfTrips) {
-            List<TripDtoResponse> responseList = new ArrayList<>();
-            for (Trip currentTrip : listOfTrips) {
-                TripDtoResponse newTripDto = new TripDtoResponse();
-                newTripDto.setCityName(currentTrip.getCityName());
-                newTripDto.setHotelName(currentTrip.getHotelName());
-                newTripDto.setFlightNumberDeparture(currentTrip.getDepartureFlightNumber());
-                newTripDto.setFlightNumberReturn(currentTrip.getReturnFlightNumber());
-                newTripDto.setAirportNameDeparture(currentTrip.getDepartureAirportName());
-                newTripDto.setAirportNameReturn(currentTrip.getReturnAirportName());
-                newTripDto.setContinentName(currentTrip.getContinentName());
-                newTripDto.setCountryName(currentTrip.getCountryName());
-                responseList.add(newTripDto);
-            }
-            return responseList;
+            int listSize = listOfTrips.size();
+            return listOfTrips
+                    .stream()
+                    .limit((listSize + pageable.getPageNumber() - 1) / pageable.getPageSize())
+                    .map(TripDto::new).collect(Collectors.toList());
         } else {
-            throw new IOException("No records");
+            throw new NoTripsForTheSpecifiedPropertiesException();
         }
     }
 
@@ -88,7 +77,7 @@ public class TripService {
 
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public Optional<List<TripDto>> getPagedTrips(@PageableDefault Pageable pageable) {
+    public Optional<List<TripDto>> findTripsOnlyByPageant(@PageableDefault Pageable pageable) {
         return Optional.of(this.tripDao.findAll(pageable).stream().map(TripDto::new).collect(Collectors.toList()));
     }
 

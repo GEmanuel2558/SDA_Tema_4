@@ -50,4 +50,9 @@ public class TripDtoRequest implements Serializable {
     public void setNrOfPersons(Integer nrOfPersons) {
         this.nrOfPersons = nrOfPersons;
     }
+
+    public boolean hasAtLeastOnePropertySet() {
+        return null != toDate || null != fromDate || null != cityName || null != hotelName || null != nrOfPersons;
+    }
+
 }
