@@ -4,11 +4,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
+import sda.tema.SDA_Tema_4.exceptions.BuyTicketHadFailed;
+import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappeared;
+import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 import sda.tema.SDA_Tema_4.utils.DiscountHelper;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Optional;
 
 @Service
@@ -30,7 +31,8 @@ public class PaymentService {
         this.flightService = flightService;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {BuyTicketHadFailed.class,
+            FlightHadDisappeared.class, NoMoreHotelRoomsException.class})
     public Long buyTicket(final TripDtoResponse buyTicket, final String userEmail) {
         Optional<Trip> tripWrapper = tripService.findTripIdByCriteria(buyTicket.getHotelName(),
                 buyTicket.getFlightNumberDeparture(),
@@ -45,27 +47,16 @@ public class PaymentService {
             buyTicket.setAmount(amountWithDiscount);
             return tripDetailsService.insertNewTripDetails(buyTicket, trip, currentUser);
         }).map(theTripId -> {
-            if (!DEFAULT_ID.equals(theTripId)) {
-                try {
-                    flightService.decrementNumberOfSeats(buyTicket.getFlightNumberDeparture(), buyTicket.getNumberOfPersons());
-                    flightService.decrementNumberOfSeats(buyTicket.getFlightNumberReturn(), buyTicket.getNumberOfPersons());
-                    return theTripId;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return DEFAULT_ID;
-                }
-            } else {
-                return theTripId;
-            }
-        }).map(theTripId -> {
-            if (!DEFAULT_ID.equals(theTripId)) {
-                tripService.decrementTheNumberOfRooms(tripWrapper.get().getId(),
-                        buyTicket.getNumberOfDoubleRooms(),
-                        buyTicket.getNumberOfSingleRooms(),
-                        buyTicket.getExtraBed());
-            }
+            flightService.decrementNumberOfSeats(buyTicket.getFlightNumberDeparture(), buyTicket.getNumberOfPersons());
+            flightService.decrementNumberOfSeats(buyTicket.getFlightNumberReturn(), buyTicket.getNumberOfPersons());
             return theTripId;
-        }).orElse(DEFAULT_ID)).orElse(DEFAULT_ID);
+        }).map(theTripId -> {
+            tripService.decrementTheNumberOfRooms(tripWrapper.get().getId(),
+                    buyTicket.getNumberOfDoubleRooms(),
+                    buyTicket.getNumberOfSingleRooms(),
+                    buyTicket.getExtraBed());
+            return theTripId;
+        }).orElseThrow(BuyTicketHadFailed::new)).orElseThrow(BuyTicketHadFailed::new);
     }
 
     /*De citit despte git hook-uri*/
