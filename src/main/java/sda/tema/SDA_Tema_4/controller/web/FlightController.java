@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sda.tema.SDA_Tema_4.business.FlightService;
 import sda.tema.SDA_Tema_4.controller.web.payload.FlightDtoRequest;
@@ -42,6 +43,7 @@ public class FlightController {
     }
 
     @PostMapping(value = "/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertNewFlights(@Valid @RequestBody FlightDtoRequest newFlight) {
         Long theNewFlight = flightService.insertNewFlights(newFlight);
         if (null != theNewFlight) {
