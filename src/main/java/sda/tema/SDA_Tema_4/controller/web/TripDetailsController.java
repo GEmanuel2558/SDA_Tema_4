@@ -2,6 +2,7 @@ package sda.tema.SDA_Tema_4.controller.web;
 
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ public class TripDetailsController {
 
     @GetMapping
     public ResponseEntity<?> getTripDetailsById(@PageableDefault Pageable pageable) {
+        pageable.getSort().and(Sort.by("created_now"));
         return tripDetailsService
                 .getTripDetails(pageable)
                 .map(ResponseEntity::ok)

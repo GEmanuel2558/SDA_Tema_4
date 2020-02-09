@@ -1,8 +1,12 @@
 package sda.tema.SDA_Tema_4.business;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import sda.tema.SDA_Tema_4.controller.web.payload.TripDto;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoRequest;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
 import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
@@ -13,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -71,7 +76,7 @@ public class TripService {
                 numberOfDoubleRooms,
                 numberOfSingleRooms,
                 numberOfExtraBeds).stream().findFirst().map(room -> {
-            System.out.println("AM primit room:"+room);
+            System.out.println("AM primit room:" + room);
             room.decrementTheNumberOfDoubleRoomsBy(numberOfDoubleRooms);
             room.decrementTheNumberOfExtraBedsBy(numberOfExtraBeds);
             room.decrementTheNumberOfSingleRoomsBy(numberOfSingleRooms);
@@ -81,6 +86,11 @@ public class TripService {
 
     }
 
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public Optional<List<TripDto>> getPagedTrips(@PageableDefault Pageable pageable) {
+        return Optional.of(this.tripDao.findAll(pageable).stream().map(TripDto::new).collect(Collectors.toList()));
+    }
 
     /*cross origin resourcer, database replication, load balancing (nginx), high available, provisioning tools, service discovery (consul, eureka),
      elk (elastic seach log stash and kebana), spring cqrs

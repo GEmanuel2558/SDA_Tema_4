@@ -1,11 +1,10 @@
 package sda.tema.SDA_Tema_4.repository.dao;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sda.tema.SDA_Tema_4.business.models.CustomRoomEntity;
-import sda.tema.SDA_Tema_4.repository.entitys.Room;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 
 import java.sql.Date;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TripDao extends CrudRepository<Trip, Long> {
+public interface TripDao extends PagingAndSortingRepository<Trip, Long> {
 
     @Query("select t from Trip t " +
             "inner join Room r on r.hotel = t.hotel " +
