@@ -59,15 +59,12 @@ public class DbTest {
                         && (null == numberOfSingleRooms || room.getNumberOfAvailableSingleRoom() >= numberOfSingleRooms)
                         && (null == extraBed || room.getNumberOfExtraBeds() >= extraBed))
                 .findFirst().map(room -> {
-            System.out.println("Pentru trip id = "+tripId+" am: "+room);
+            System.out.println("Pentru trip id = " + tripId + " am: " + room);
             return true;
         }).orElse(false);
 
-        try {
-            tripService.decrementTheNumberOfRooms(tripId, 1, 1, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        tripService.decrementTheNumberOfRooms(tripId, 1, 1, 1);
+
     }
 
 

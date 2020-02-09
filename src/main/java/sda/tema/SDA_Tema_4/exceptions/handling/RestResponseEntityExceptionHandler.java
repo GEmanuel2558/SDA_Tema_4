@@ -1,20 +1,14 @@
 package sda.tema.SDA_Tema_4.exceptions.handling;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.sql.SQLException;
+import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -27,6 +21,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         }
 
         return handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(NoMoreHotelRoomsException.class)
+    public ResponseEntity<Object> handleNoMoreRooms(NoMoreHotelRoomsException ex, WebRequest request) {
+        return handleExceptionInternal(ex, "No more rooms for this hotel",
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 

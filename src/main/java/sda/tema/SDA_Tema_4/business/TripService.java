@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoRequest;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
+import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
 import sda.tema.SDA_Tema_4.repository.dao.TripDao;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 
@@ -64,25 +65,19 @@ public class TripService {
     public void decrementTheNumberOfRooms(Long id,
                                           final Integer numberOfDoubleRooms,
                                           final Integer numberOfSingleRooms,
-                                          final Integer extraBed) throws IOException {
+                                          final Integer numberOfExtraBeds) {
 
-        this.tripDao.findById(id).map(trip -> trip.getHotel()
-                .getListOfRooms()
-                .stream()
-                .filter(room -> (null == numberOfDoubleRooms || room.getNumberOfAvailableDoubleRoom() >= numberOfDoubleRooms)
-                        && (null == numberOfSingleRooms || room.getNumberOfAvailableSingleRoom() >= numberOfSingleRooms)
-                        && (null == extraBed || room.getNumberOfExtraBeds() >= extraBed))
-                .findFirst()).map(roomWrapper -> {
-            roomWrapper.map(room -> {
-                System.out.println("Decrement the number of rooms for the id = " + room.getId());
-                room.setNumberOfAvailableDoubleRoom(room.getNumberOfAvailableDoubleRoom() - numberOfDoubleRooms);
-                room.setNumberOfAvailableSingleRoom(room.getNumberOfAvailableSingleRoom() - numberOfSingleRooms);
-                room.setNumberOfExtraBeds(room.getNumberOfExtraBeds() - extraBed);
-                roomService.updateRoom(room.getId(), room);
-                return true;
-            });
+        this.tripDao.findRoomWithTheNumberOfBedsThatTheClientWant(id,
+                numberOfDoubleRooms,
+                numberOfSingleRooms,
+                numberOfExtraBeds).stream().findFirst().map(room -> {
+            System.out.println("AM primit room:"+room);
+            room.decrementTheNumberOfDoubleRoomsBy(numberOfDoubleRooms);
+            room.decrementTheNumberOfExtraBedsBy(numberOfExtraBeds);
+            room.decrementTheNumberOfSingleRoomsBy(numberOfSingleRooms);
+            this.roomService.updateRoom(room);
             return true;
-        }).orElseThrow(() -> new IOException("Unknown trip id"));
+        }).orElseThrow(NoMoreHotelRoomsException::new);
 
     }
 

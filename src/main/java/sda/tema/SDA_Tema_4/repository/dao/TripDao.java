@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import sda.tema.SDA_Tema_4.business.models.CustomRoomEntity;
+import sda.tema.SDA_Tema_4.repository.entitys.Room;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 
 import java.sql.Date;
@@ -35,5 +37,16 @@ public interface TripDao extends CrudRepository<Trip, Long> {
                                         @Param("departureFlightNumber") String departureFlightNumber,
                                         @Param("returnFlightNumber") String returnFlightNumber);
 
+
+    @Query(value = "select new sda.tema.SDA_Tema_4.business.models.CustomRoomEntity(r.id, r.numberOfAvailableDoubleRoom, " +
+            "r.numberOfAvailableSingleRoom, r.numberOfExtraBeds) from Trip t " +
+            "inner join Room r on r.hotel = t.hotel where t.id = :tripId " +
+            "and ( :numberOfDoubleRooms is null or r.numberOfAvailableDoubleRoom >= :numberOfDoubleRooms ) " +
+            "and ( :numberOfAvailableSingleRoom is null or r.numberOfAvailableSingleRoom >= :numberOfAvailableSingleRoom )" +
+            "and ( :extraBed is null or r.numberOfExtraBeds >= :extraBed ) order by r.id asc")
+    List<CustomRoomEntity> findRoomWithTheNumberOfBedsThatTheClientWant(@Param("tripId") Long tripId,
+                                                                        @Param("numberOfDoubleRooms") Integer numberOfDoubleRooms,
+                                                                        @Param("numberOfAvailableSingleRoom") Integer numberOfAvailableSingleRoom,
+                                                                        @Param("extraBed") Integer extraBed);
 
 }

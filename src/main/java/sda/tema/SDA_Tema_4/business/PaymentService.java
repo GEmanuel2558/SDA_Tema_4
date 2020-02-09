@@ -8,6 +8,7 @@ import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 import sda.tema.SDA_Tema_4.utils.DiscountHelper;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @Service
@@ -58,19 +59,12 @@ public class PaymentService {
             }
         }).map(theTripId -> {
             if (!DEFAULT_ID.equals(theTripId)) {
-                try {
-                    tripService.decrementTheNumberOfRooms(tripWrapper.get().getId(),
-                            buyTicket.getNumberOfDoubleRooms(),
-                            buyTicket.getNumberOfSingleRooms(),
-                            buyTicket.getExtraBed());
-                    return theTripId;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return DEFAULT_ID;
-                }
-            } else {
-                return theTripId;
+                tripService.decrementTheNumberOfRooms(tripWrapper.get().getId(),
+                        buyTicket.getNumberOfDoubleRooms(),
+                        buyTicket.getNumberOfSingleRooms(),
+                        buyTicket.getExtraBed());
             }
+            return theTripId;
         }).orElse(DEFAULT_ID)).orElse(DEFAULT_ID);
     }
 
