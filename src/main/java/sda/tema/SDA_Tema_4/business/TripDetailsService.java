@@ -1,5 +1,7 @@
 package sda.tema.SDA_Tema_4.business;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,10 +12,11 @@ import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 import sda.tema.SDA_Tema_4.repository.entitys.TripDetails;
 import sda.tema.SDA_Tema_4.security.entitys.User;
 
-import javax.validation.constraints.NotNull;
 import java.sql.Date;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TripDetailsService {
@@ -44,16 +47,28 @@ public class TripDetailsService {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public Optional<TripDetailsDto> getTripDetailsById(Long tripDetailsId) {
-        return dao.findById(tripDetailsId).map(tripDetails -> {
-            TripDetailsDto tripDetailsDto = new TripDetailsDto();
-            tripDetailsDto.setTripId(tripDetails.getId());
-            tripDetailsDto.setCreatedRow(tripDetails.getCreatedRow().toString());
-            tripDetailsDto.setAmount(tripDetails.getAmount());
-            tripDetailsDto.setExtraBed(tripDetails.getExtraBed());
-            tripDetailsDto.setNumberOfDoubleRooms(tripDetails.getNumberOfDoubleRooms());
-            tripDetailsDto.setNumberOfSingleRooms(tripDetails.getNumberOfSingleRooms());
-            return Optional.of(tripDetailsDto);
-        }).orElseGet(Optional::empty);
+        return dao.findById(tripDetailsId).map(this::convertFromTripDetailsToDto);
+    }
+
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public Optional<List<TripDetailsDto>> getTripDetails(Pageable pageable) {
+        return Optional.of(this.dao
+                .findAll(pageable)
+                .stream()
+                .map(this::convertFromTripDetailsToDto)
+                .collect(Collectors.toList()));
+    }
+
+    private TripDetailsDto convertFromTripDetailsToDto(TripDetails tripDetails) {
+        TripDetailsDto tripDetailsDto = new TripDetailsDto();
+        tripDetailsDto.setTripId(tripDetails.getId());
+        tripDetailsDto.setCreatedRow(tripDetails.getCreatedRow().toString());
+        tripDetailsDto.setAmount(tripDetails.getAmount());
+        tripDetailsDto.setExtraBed(tripDetails.getExtraBed());
+        tripDetailsDto.setNumberOfDoubleRooms(tripDetails.getNumberOfDoubleRooms());
+        tripDetailsDto.setNumberOfSingleRooms(tripDetails.getNumberOfSingleRooms());
+        return tripDetailsDto;
     }
 
 }
