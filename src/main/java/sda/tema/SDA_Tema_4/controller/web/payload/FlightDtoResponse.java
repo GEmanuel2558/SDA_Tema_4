@@ -5,7 +5,7 @@ import sda.tema.SDA_Tema_4.repository.entitys.Flight;
 import java.io.Serializable;
 import java.util.Date;
 
-public class FlightDto implements Serializable {
+public class FlightDtoResponse implements Serializable {
 
     private String flightNumber;
     private Date departureDate;
@@ -14,10 +14,10 @@ public class FlightDto implements Serializable {
     private Integer flightPrice;
     private AirportDto airport;
 
-    public FlightDto() {
+    public FlightDtoResponse() {
     }
 
-    public FlightDto(final Flight flight) {
+    public FlightDtoResponse(final Flight flight) {
         this.flightNumber = flight.getFlightNumber();
         this.departureDate = flight.getDepartureDate();
         this.totalNumberOfSeets = flight.getTotalNumberOfSeets();

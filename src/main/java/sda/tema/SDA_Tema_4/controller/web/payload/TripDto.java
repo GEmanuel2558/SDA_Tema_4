@@ -6,8 +6,8 @@ import java.io.Serializable;
 
 public class TripDto implements Serializable {
 
-    private FlightDto flightIdDeparture;
-    private FlightDto flightIdReturn;
+    private FlightDtoResponse flightIdDeparture;
+    private FlightDtoResponse flightIdReturn;
     private HotelDto hotel;
     private String checkinFromHotel;
     private String checkoutFromHotel;
@@ -21,24 +21,24 @@ public class TripDto implements Serializable {
         checkoutFromHotel = trip.getCheckoutFromHotel().toString();
         promoted = trip.getPromoted();
         //Cobalt pentru bateriile de masina si cauta sa faca o celula de hidrogen
-        flightIdDeparture = new FlightDto(trip.getFlightIdDeparture());
-        flightIdReturn = new FlightDto(trip.getFlightIdReturn());
+        flightIdDeparture = new FlightDtoResponse(trip.getFlightIdDeparture());
+        flightIdReturn = new FlightDtoResponse(trip.getFlightIdReturn());
         hotel = new HotelDto(trip.getHotel());
     }
 
-    public FlightDto getFlightIdDeparture() {
+    public FlightDtoResponse getFlightIdDeparture() {
         return flightIdDeparture;
     }
 
-    public void setFlightIdDeparture(FlightDto flightIdDeparture) {
+    public void setFlightIdDeparture(FlightDtoResponse flightIdDeparture) {
         this.flightIdDeparture = flightIdDeparture;
     }
 
-    public FlightDto getFlightIdReturn() {
+    public FlightDtoResponse getFlightIdReturn() {
         return flightIdReturn;
     }
 
-    public void setFlightIdReturn(FlightDto flightIdReturn) {
+    public void setFlightIdReturn(FlightDtoResponse flightIdReturn) {
         this.flightIdReturn = flightIdReturn;
     }
 
