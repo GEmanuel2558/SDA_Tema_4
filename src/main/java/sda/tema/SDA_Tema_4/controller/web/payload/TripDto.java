@@ -17,7 +17,7 @@ public class TripDto implements Serializable {
     }
 
     public TripDto(final Trip trip) {
-        checkinFromHotel = trip.getCheckinFromHotel().toString();
+        checkinFromHotel = trip.getCheckinToHotel().toString();
         checkoutFromHotel = trip.getCheckoutFromHotel().toString();
         promoted = trip.getPromoted();
         //Cobalt pentru bateriile de masina si cauta sa faca o celula de hidrogen

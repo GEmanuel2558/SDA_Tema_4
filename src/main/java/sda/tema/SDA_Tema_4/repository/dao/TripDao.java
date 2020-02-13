@@ -17,17 +17,18 @@ public interface TripDao extends PagingAndSortingRepository<Trip, Long> {
 
     @Query("select t from Trip t " +
             "inner join Room r on r.hotel = t.hotel " +
-            "where (:departureDate is null or t.checkinFromHotel >= :departureDate )" +
+            "where (:departureDate is null or t.checkinToHotel >= :departureDate )" +
             "and (:returnDate is null or t.checkoutFromHotel <= :returnDate )" +
             "and ( :hotelName is null or t.hotel.name = :hotelName )" +
             "and ( :cityName is null or t.hotel.city.name = :cityName )" +
-            "and ( :nrOfPersons is null or r.numberOfAvailableDoubleRoom >= :nrOfPersons or r.numberOfAvailableSingleRoom >= :nrOfPersons )" +
-            "order by t.checkinFromHotel asc")
+            "group by t.checkinToHotel, t.checkoutFromHotel " +
+            "having sum(2*r.numberOfAvailableDoubleRoom + r.numberOfAvailableSingleRoom + r.numberOfExtraBeds) >= :nrOfPersons " +
+            "order by t.checkinToHotel, t.promoted asc")
     List<Trip> findTripByCriteria(@Param("departureDate") Date departureDate,
                                   @Param("returnDate") Date returnDate,
                                   @Param("hotelName") String hotelName,
                                   @Param("cityName") String cityName,
-                                  @Param("nrOfPersons") Integer nrOfPersons);
+                                  @Param("nrOfPersons") Long nrOfPersons);
 
     @Query(value = "select t from Trip t where " +
             "t.hotel.name = :hotelName " +

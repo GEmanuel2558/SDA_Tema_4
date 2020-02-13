@@ -21,9 +21,9 @@ public class Trip extends BaseEntity {
     @JoinColumn(name = "hotel_id", foreignKey = @ForeignKey(name = "fk_trip_hotel"))
     private Hotel hotel;
 
-    @Column(name = "checkin_from_hotel")
+    @Column(name = "checkin_to_hotel")
     //@Temporal(TemporalType.DATE)
-    private Date checkinFromHotel;
+    private Date checkinToHotel;
 
     @Column(name = "checkout_from_hotel")
     //@Temporal(TemporalType.DATE)
@@ -63,12 +63,12 @@ public class Trip extends BaseEntity {
         this.hotel = hotel;
     }
 
-    public Date getCheckinFromHotel() {
-        return checkinFromHotel;
+    public Date getCheckinToHotel() {
+        return checkinToHotel;
     }
 
-    public void setCheckinFromHotel(Date checkin_from_hotel) {
-        this.checkinFromHotel = checkin_from_hotel;
+    public void setCheckinToHotel(Date checkin_from_hotel) {
+        this.checkinToHotel = checkin_from_hotel;
     }
 
     public Date getCheckoutFromHotel() {
@@ -144,7 +144,7 @@ public class Trip extends BaseEntity {
         return Objects.equals(flightIdDeparture, trip.flightIdDeparture) &&
                 Objects.equals(flightIdReturn, trip.flightIdReturn) &&
                 Objects.equals(hotel, trip.hotel) &&
-                Objects.equals(checkinFromHotel, trip.checkinFromHotel) &&
+                Objects.equals(checkinToHotel, trip.checkinToHotel) &&
                 Objects.equals(checkoutFromHotel, trip.checkoutFromHotel) &&
                 Objects.equals(promoted, trip.promoted) &&
                 Objects.equals(listOfTripDetails, trip.listOfTripDetails);
@@ -152,7 +152,7 @@ public class Trip extends BaseEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), flightIdDeparture, flightIdReturn, hotel, checkinFromHotel, checkoutFromHotel, promoted, listOfTripDetails);
+        return Objects.hash(super.hashCode(), flightIdDeparture, flightIdReturn, hotel, checkinToHotel, checkoutFromHotel, promoted, listOfTripDetails);
     }
 
 /*    @Override

@@ -35,7 +35,7 @@ public class TripService {
                 request.getToDate(),
                 request.getHotelName(),
                 request.getCityName(),
-                request.getNrOfPersons());
+                request.getNrOfPersons().longValue());
 
         if (null != listOfTrips) {
             int listSize = listOfTrips.size();

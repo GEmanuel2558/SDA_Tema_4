@@ -2,6 +2,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_data`()
 BEGIN
 
 DECLARE counter INT DEFAULT 1;
+declare incrementer int default 0;
 declare random_month int default 1;
 declare random_number_of_seets int default 1;
 declare city_referince int default 1;
@@ -12,7 +13,6 @@ declare random_end_trip date default '2021-12-31';
 declare is_promoted bit default 0;
 declare flight_id_departure int default 0;
 declare flight_id_return int default 0;
-
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE table sda_tema_4.continent;
@@ -27,7 +27,12 @@ TRUNCATE table sda_tema_4.trip_details;
 TRUNCATE table sda_tema_4.user;
 TRUNCATE table sda_tema_4.roles;
 TRUNCATE table sda_tema_4.user_roles;
+truncate table tmp_log;
 SET FOREIGN_KEY_CHECKS = 1;
+
+INSERT INTO roles(name) VALUES('ROLE_USER');
+INSERT INTO roles(name) VALUES('ROLE_ADMIN');
+commit;
 
 insert into continent(`id`, `name`) values (1, 'Africa');
 insert into continent(`id`, `name`) values (2, 'America de Nord');
@@ -126,19 +131,36 @@ commit;
 
    WHILE counter <= 34  DO
 		set random_month = FLOOR((RAND() * 12)+1);
-
-			insert into room(from_date, available_double_rooms, available_single_room, extra_beds, double_room_price, single_room_price, extra_bed_price, to_date, hotel_id)
-			values (
-			STR_TO_DATE(concat('2020-', random_month, '-01'),"%Y-%m-%d"),
-			FLOOR((RAND() * 100)+1),
-			FLOOR((RAND() * 100)+1),
-			FLOOR((RAND() * 100)+1),
-			FLOOR((RAND() * 100)+1),
-			FLOOR((RAND() * 100)+1),
-			FLOOR((RAND() * 100)+1),
-			STR_TO_DATE(concat('2020-', random_month, '-20'),"%Y-%m-%d"),
-			counter);
-
+		insert into tmp_log(id, msg) values (counter, concat('room counter = ', counter));
+        set incrementer =1;
+			while (incrementer <= 3) do
+				if (0 = (FLOOR((RAND() * 100)+1) % 2)) then
+					insert into room(from_date, available_double_rooms, available_single_room, extra_beds, double_room_price, single_room_price, extra_bed_price, to_date, hotel_id)
+					values (
+					STR_TO_DATE(concat('2020-', random_month, '-01'),"%Y-%m-%d"),
+					1,
+					0,
+					FLOOR((RAND() * 2)+1),
+					FLOOR((RAND() * 100)+1),
+					0,
+					FLOOR((RAND() * 100)+1),
+					STR_TO_DATE(concat('2020-', random_month, '-20'),"%Y-%m-%d"),
+					counter);
+				else
+					insert into room(from_date, available_double_rooms, available_single_room, extra_beds, double_room_price, single_room_price, extra_bed_price, to_date, hotel_id)
+					values (
+					STR_TO_DATE(concat('2020-', random_month, '-01'),"%Y-%m-%d"),
+					0,
+					1,
+					FLOOR((RAND() * 2)+1),
+					0,
+					FLOOR((RAND() * 100)+1),
+					FLOOR((RAND() * 100)+1),
+					STR_TO_DATE(concat('2020-', random_month, '-20'),"%Y-%m-%d"),
+					counter);
+                    set incrementer = incrementer +1;
+				end if;
+            end while;
 		SET counter = counter + 1;
 	END WHILE;
 	commit;
@@ -149,6 +171,7 @@ commit;
         if ( 0 = city_referince ) then
 			set city_referince = city_referince + 1;
         end if;
+		insert into tmp_log(id, msg) values (counter, concat('airport counter = ', city_referince));
 		insert into airport (`name`, `city_id`) values (concat('airport ', counter), city_referince);
 		SET counter = counter + 1;
 	END WHILE;
@@ -159,6 +182,7 @@ commit;
 		set random_month = FLOOR((RAND() * 12)+1);
         set random_number_of_seets = FLOOR((RAND() * 40)+1);
 
+		insert into tmp_log(id, msg) values (counter, concat('flight counter = ', counter));
 		insert into flight (departure_date, flight_number, flight_price, retailabe_seats, number_of_seets, airport_id)
 			values (
 			TIMESTAMPADD(SECOND, FLOOR(RAND() * TIMESTAMPDIFF(SECOND, MIN_date, MAX_date)), MIN_date),
@@ -209,7 +233,8 @@ commit;
 			select id into flight_id_return from flight f where f.departure_date>=flight_id_departure order by f.departure_date asc limit 1;
 			if ( flight_id_return is not null ) then
 
-				insert into trip(checkin_from_hotel, checkout_from_hotel, promoted, flight_id_departure, flight_id_return, hotel_id)
+            	insert into tmp_log(id, msg) values (counter, concat('trip counter = ', counter));
+				insert into trip(checkin_to_hotel, checkout_from_hotel, promoted, flight_id_departure, flight_id_return, hotel_id)
 					values (
 					random_start_trip,
 					random_end_trip,
