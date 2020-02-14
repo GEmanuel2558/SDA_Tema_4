@@ -61,68 +61,11 @@ public class TripService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    Optional<Trip> findTripIdByCriteria(String hotelName,
+    Optional<List<Trip>> findTripIdByCriteria(String hotelName,
                                         String departureFlightNumber,
                                         String returnFlightNumber) {
         return this.tripDao.findTripIdByCriteria(hotelName, departureFlightNumber, returnFlightNumber);
     }
-
-    private AtomicInteger tmpNumberOfExtraBeds = new AtomicInteger();
-
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void decrementTheNumberOfRooms(final String hotelName,
-                                          final Integer numberOfDoubleRooms,
-                                          final Integer numberOfSingleRooms,
-                                          final Integer numberOfExtraBeds) {
-
-        List<Room> hotelRooms = roomService.getAllRoomsForHotel(hotelName);
-        if (null == hotelName || hotelRooms.isEmpty()) {
-            throw new NoMoreHotelRoomsException();
-        } else {
-            tmpNumberOfExtraBeds.set(numberOfExtraBeds);
-            decrementOnlyTheSingleRooms(numberOfSingleRooms, hotelRooms);
-
-
-        }
-
-    }
-
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void decrementOnlyTheSingleRooms(Integer numberOfSingleRooms, List<Room> hotelRooms) {
-        if (0 != numberOfSingleRooms) {
-            List<Room> hotelAllSingleRooms = hotelRooms
-                    .stream()
-                    .filter(room -> 1 == room.getNumberOfAvailableSingleRoom())
-                    .limit(numberOfSingleRooms)
-                    .collect(Collectors.toList());
-            if (hotelAllSingleRooms.size() < numberOfSingleRooms) {
-                throw new NoMoreHotelRoomsException();
-            } else {
-                hotelAllSingleRooms.stream().peek(room -> {
-                    room.setNumberOfAvailableSingleRoom(0);
-                    if (0 != tmpNumberOfExtraBeds.get()) {
-                        switch (Integer.compare(room.getNumberOfExtraBeds(), tmpNumberOfExtraBeds.get())) {
-                            case 0:
-                                room.setNumberOfExtraBeds(0);
-                                tmpNumberOfExtraBeds.set(0);
-                                break;
-                            case 1:
-                                room.setNumberOfExtraBeds(room.getNumberOfExtraBeds() - tmpNumberOfExtraBeds.get());
-                                tmpNumberOfExtraBeds.set(0);
-                                break;
-                            case -1:
-                                int roomDifference = tmpNumberOfExtraBeds.get() - room.getNumberOfExtraBeds();
-                                room.setNumberOfExtraBeds(roomDifference);
-                                tmpNumberOfExtraBeds.set(roomDifference);
-                                break;
-                        }
-
-                    }
-                });
-            }
-        }
-    }
-
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public Optional<List<TripDto>> findTripsOnlyByPageant(@PageableDefault Pageable pageable) {

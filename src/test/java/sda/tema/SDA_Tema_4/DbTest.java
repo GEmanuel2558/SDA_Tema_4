@@ -40,7 +40,7 @@ public class DbTest {
 
     @Test
     public void givenParameters_ThanGetTripId() {
-        Optional<Trip> tripId = tripDao.findTripIdByCriteria("Emanuel", "a5f58r", "w8f2r6");
+        Optional<List<Trip>> tripId = tripDao.findTripIdByCriteria("Emanuel", "a5f58r", "w8f2r6");
         Assertions.assertNull(tripId.get());
     }
 
@@ -63,7 +63,7 @@ public class DbTest {
             return true;
         }).orElse(false);
 
-        tripService.decrementTheNumberOfRooms("", 1, 1, 1);
+        //tripService.decrementTheNumberOfRooms("", 1, 1, 1);
 
     }
 

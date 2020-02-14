@@ -34,7 +34,7 @@ public interface TripDao extends PagingAndSortingRepository<Trip, Long> {
             "t.hotel.name = :hotelName " +
             "and t.flightIdDeparture.flightNumber = :departureFlightNumber " +
             "and t.flightIdReturn.flightNumber = :returnFlightNumber")
-    Optional<Trip> findTripIdByCriteria(@Param("hotelName") String hotelName,
+    Optional<List<Trip>> findTripIdByCriteria(@Param("hotelName") String hotelName,
                                         @Param("departureFlightNumber") String departureFlightNumber,
                                         @Param("returnFlightNumber") String returnFlightNumber);
 
