@@ -7,6 +7,8 @@ import sda.tema.SDA_Tema_4.business.models.CustomRoomEntity;
 import sda.tema.SDA_Tema_4.repository.dao.RoomDao;
 import sda.tema.SDA_Tema_4.repository.entitys.Room;
 
+import java.util.List;
+
 @Service
 public class RoomService {
 
@@ -22,6 +24,11 @@ public class RoomService {
                 updateEntity.getNumberOfAvailableSingleRoom(),
                 updateEntity.getNumberOfAvailableDoubleRoom(),
                 updateEntity.getNumberOfExtraBeds());
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public List<Room> getAllRoomsForHotel(String hotelName) {
+        return roomDao.getAllRoomsForHotel(hotelName);
     }
 
 }

@@ -8,6 +8,7 @@ import sda.tema.SDA_Tema_4.exceptions.BuyTicketHadFailedException;
 import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappearedException;
 import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
+import sda.tema.SDA_Tema_4.security.entitys.User;
 import sda.tema.SDA_Tema_4.utils.DiscountHelper;
 
 import java.util.Optional;
@@ -37,26 +38,45 @@ public class PaymentService {
         Optional<Trip> tripWrapper = tripService.findTripIdByCriteria(buyTicket.getHotelName(),
                 buyTicket.getFlightNumberDeparture(),
                 buyTicket.getFlightNumberReturn());
-        return tripWrapper.map(trip -> this.userService.findUserByEmail(userEmail).map(currentUser -> {
-            Integer amountWithDiscount = DiscountHelper.getInstance().getDiscountByAmount(currentUser.getTotalAmount());
-            if (null == currentUser.getTotalAmount()) {
-                currentUser.setTotalAmount(amountWithDiscount);
-            } else {
-                currentUser.setTotalAmount(currentUser.getTotalAmount() + currentUser.getTotalAmount());
-            }
-            buyTicket.setAmount(amountWithDiscount);
-            return tripDetailsService.insertNewTripDetails(buyTicket, trip, currentUser);
-        }).map(theTripId -> {
-            flightService.decrementNumberOfSeats(buyTicket.getFlightNumberDeparture(), buyTicket.getNumberOfPersons());
-            flightService.decrementNumberOfSeats(buyTicket.getFlightNumberReturn(), buyTicket.getNumberOfPersons());
-            return theTripId;
-        }).map(theTripId -> {
-            tripService.decrementTheNumberOfRooms(tripWrapper.get().getId(),
-                    buyTicket.getNumberOfDoubleRooms(),
-                    buyTicket.getNumberOfSingleRooms(),
-                    buyTicket.getExtraBed());
-            return theTripId;
-        }).orElseThrow(BuyTicketHadFailedException::new)).orElseThrow(BuyTicketHadFailedException::new);
+
+        return tripWrapper.map(trip -> this.userService.findUserByEmail(userEmail)
+                .map(currentUser -> insertNewTrip(buyTicket, trip, currentUser))
+                .map(theTripId -> decrementFlightSeats(buyTicket, theTripId))
+                .map(theTripId -> decrementTheNumberOfHotelRooms(buyTicket, theTripId))
+                .orElseThrow(BuyTicketHadFailedException::new))
+                .orElseThrow(BuyTicketHadFailedException::new);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Long decrementTheNumberOfHotelRooms(TripDtoResponse buyTicket, Long theTripId) {
+        tripService.decrementTheNumberOfRooms(buyTicket.getHotelName(),
+                buyTicket.getNumberOfDoubleRooms(),
+                buyTicket.getNumberOfSingleRooms(),
+                buyTicket.getExtraBed());
+        return theTripId;
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Long decrementFlightSeats(TripDtoResponse buyTicket, Long theTripId) {
+        flightService.decrementNumberOfSeats(buyTicket.getFlightNumberDeparture(), buyTicket.getNumberOfPersons());
+        flightService.decrementNumberOfSeats(buyTicket.getFlightNumberReturn(), buyTicket.getNumberOfPersons());
+        return theTripId;
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Long insertNewTrip(TripDtoResponse buyTicket, Trip trip, User currentUser) {
+        incrementUserTripsAmount(buyTicket, currentUser);
+        return tripDetailsService.insertNewTripDetails(buyTicket, trip, currentUser);
+    }
+
+    private void incrementUserTripsAmount(TripDtoResponse buyTicket, User currentUser) {
+        Integer amountWithDiscount = DiscountHelper.getInstance().getDiscountByAmount(currentUser.getTotalAmount());
+        if (null == currentUser.getTotalAmount()) {
+            currentUser.setTotalAmount(amountWithDiscount);
+        } else {
+            currentUser.setTotalAmount(currentUser.getTotalAmount() + currentUser.getTotalAmount());
+        }
+        buyTicket.setAmount(amountWithDiscount);
     }
 
     /*De citit despte git hook-uri*/

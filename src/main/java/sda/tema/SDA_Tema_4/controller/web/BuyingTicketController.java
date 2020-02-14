@@ -13,7 +13,6 @@ import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoResponse;
 import sda.tema.SDA_Tema_4.security.UserPrincipal;
 
 import java.net.URI;
-import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/buy.ticket")

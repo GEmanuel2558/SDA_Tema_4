@@ -63,7 +63,7 @@ public class DbTest {
             return true;
         }).orElse(false);
 
-        tripService.decrementTheNumberOfRooms(tripId, 1, 1, 1);
+        tripService.decrementTheNumberOfRooms("", 1, 1, 1);
 
     }
 

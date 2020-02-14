@@ -1,15 +1,15 @@
 package sda.tema.SDA_Tema_4.business;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import sda.tema.SDA_Tema_4.controller.web.payload.FlightDtoResponse;
+import sda.tema.SDA_Tema_4.controller.web.payload.FlightDetails;
 import sda.tema.SDA_Tema_4.controller.web.payload.FlightDtoRequest;
+import sda.tema.SDA_Tema_4.controller.web.payload.FlightDtoResponse;
 import sda.tema.SDA_Tema_4.exceptions.AirtportNotFoundException;
 import sda.tema.SDA_Tema_4.exceptions.FlightHadDisappearedException;
-import sda.tema.SDA_Tema_4.exceptions.InvalidTableKeyException;
+import sda.tema.SDA_Tema_4.exceptions.NoAirportException;
 import sda.tema.SDA_Tema_4.repository.dao.FlightDao;
 import sda.tema.SDA_Tema_4.repository.entitys.Flight;
 
@@ -21,12 +21,11 @@ import java.util.stream.Collectors;
 public class FlightService {
 
     private final FlightDao flightDao;
+    private final AirportService airportService;
 
-    @Autowired
-    private AirportService airportService;
-
-    public FlightService(FlightDao flightDao) {
+    public FlightService(FlightDao flightDao, AirportService airportService) {
         this.flightDao = flightDao;
+        this.airportService = airportService;
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -61,6 +60,20 @@ public class FlightService {
 
     public List<FlightDtoResponse> getFlight(Pageable pageable) {
         return this.flightDao.findAll(pageable).stream().map(FlightDtoResponse::new).collect(Collectors.toList());
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Flight insertNewFlight(final FlightDetails flightDetails) {
+        return airportService.findAirportByName(flightDetails.getAirportDetails().getName()).map(airport -> {
+            Flight flight = new Flight();
+            flight.setAirport(airport);
+            flight.setTotalNumberOfSeets(flightDetails.getNumberOfSeets());
+            flight.setRetailabeSeats(flight.getRetailabeSeats());
+            flight.setFlightNumber(flight.getFlightNumber());
+            flight.setFlightPrice(flightDetails.getPrice());
+            flight.setDepartureDate(flight.getDepartureDate());
+            return flightDao.save(flight);
+        }).orElseThrow(NoAirportException::new);
     }
 
 }

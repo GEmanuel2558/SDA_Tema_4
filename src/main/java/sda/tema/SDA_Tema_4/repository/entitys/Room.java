@@ -38,6 +38,9 @@ public class Room extends BaseEntity {
     @JoinColumn(name = "hotel_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_room_hotel"))
     private Hotel hotel;
 
+    @Version
+    public Integer version;
+
     public Date getFromDate() {
         return fromDate;
     }
@@ -125,6 +128,14 @@ public class Room extends BaseEntity {
         this.numberOfExtraBeds = this.numberOfExtraBeds - decrementBy;
     }
 
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -139,12 +150,23 @@ public class Room extends BaseEntity {
                 Objects.equals(priceForDoubleRoom, room.priceForDoubleRoom) &&
                 Objects.equals(priceForSingleRoom, room.priceForSingleRoom) &&
                 Objects.equals(pricePerExtraBed, room.pricePerExtraBed) &&
-                Objects.equals(hotel, room.hotel);
+                Objects.equals(hotel, room.hotel) &&
+                Objects.equals(version, room.version);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), fromDate, toDate, numberOfAvailableDoubleRoom, numberOfAvailableSingleRoom, numberOfExtraBeds, priceForDoubleRoom, priceForSingleRoom, pricePerExtraBed, hotel);
+        return Objects.hash(super.hashCode(),
+                fromDate,
+                toDate,
+                numberOfAvailableDoubleRoom,
+                numberOfAvailableSingleRoom,
+                numberOfExtraBeds,
+                priceForDoubleRoom,
+                priceForSingleRoom,
+                pricePerExtraBed,
+                hotel,
+                version);
     }
 
     @Override

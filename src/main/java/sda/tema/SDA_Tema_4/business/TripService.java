@@ -5,15 +5,21 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import sda.tema.SDA_Tema_4.controller.web.payload.NewTripDto;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDto;
 import sda.tema.SDA_Tema_4.controller.web.payload.TripDtoRequest;
 import sda.tema.SDA_Tema_4.exceptions.NoMoreHotelRoomsException;
 import sda.tema.SDA_Tema_4.exceptions.NoTripsForTheSpecifiedPropertiesException;
 import sda.tema.SDA_Tema_4.repository.dao.TripDao;
+import sda.tema.SDA_Tema_4.repository.entitys.Flight;
+import sda.tema.SDA_Tema_4.repository.entitys.Hotel;
+import sda.tema.SDA_Tema_4.repository.entitys.Room;
 import sda.tema.SDA_Tema_4.repository.entitys.Trip;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,11 +28,17 @@ public class TripService {
 
     private final TripDao tripDao;
     private final RoomService roomService;
+    private final HotelService hotelDetails;
+    private final FlightService flightService;
 
     public TripService(TripDao tripDao,
-                       RoomService roomService) {
+                       RoomService roomService,
+                       HotelService hotelDetails,
+                       FlightService flightService) {
         this.tripDao = tripDao;
         this.roomService = roomService;
+        this.hotelDetails = hotelDetails;
+        this.flightService = flightService;
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
@@ -55,24 +67,60 @@ public class TripService {
         return this.tripDao.findTripIdByCriteria(hotelName, departureFlightNumber, returnFlightNumber);
     }
 
+    private AtomicInteger tmpNumberOfExtraBeds = new AtomicInteger();
+
     @Transactional(propagation = Propagation.MANDATORY)
-    public void decrementTheNumberOfRooms(Long id,
+    public void decrementTheNumberOfRooms(final String hotelName,
                                           final Integer numberOfDoubleRooms,
                                           final Integer numberOfSingleRooms,
                                           final Integer numberOfExtraBeds) {
 
-        this.tripDao.findRoomWithTheNumberOfBedsThatTheClientWant(id,
-                numberOfDoubleRooms,
-                numberOfSingleRooms,
-                numberOfExtraBeds).stream().findFirst().map(room -> {
-            System.out.println("AM primit room:" + room);
-            room.decrementTheNumberOfDoubleRoomsBy(numberOfDoubleRooms);
-            room.decrementTheNumberOfExtraBedsBy(numberOfExtraBeds);
-            room.decrementTheNumberOfSingleRoomsBy(numberOfSingleRooms);
-            this.roomService.updateRoom(room);
-            return true;
-        }).orElseThrow(NoMoreHotelRoomsException::new);
+        List<Room> hotelRooms = roomService.getAllRoomsForHotel(hotelName);
+        if (null == hotelName || hotelRooms.isEmpty()) {
+            throw new NoMoreHotelRoomsException();
+        } else {
+            tmpNumberOfExtraBeds.set(numberOfExtraBeds);
+            decrementOnlyTheSingleRooms(numberOfSingleRooms, hotelRooms);
 
+
+        }
+
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void decrementOnlyTheSingleRooms(Integer numberOfSingleRooms, List<Room> hotelRooms) {
+        if (0 != numberOfSingleRooms) {
+            List<Room> hotelAllSingleRooms = hotelRooms
+                    .stream()
+                    .filter(room -> 1 == room.getNumberOfAvailableSingleRoom())
+                    .limit(numberOfSingleRooms)
+                    .collect(Collectors.toList());
+            if (hotelAllSingleRooms.size() < numberOfSingleRooms) {
+                throw new NoMoreHotelRoomsException();
+            } else {
+                hotelAllSingleRooms.stream().peek(room -> {
+                    room.setNumberOfAvailableSingleRoom(0);
+                    if (0 != tmpNumberOfExtraBeds.get()) {
+                        switch (Integer.compare(room.getNumberOfExtraBeds(), tmpNumberOfExtraBeds.get())) {
+                            case 0:
+                                room.setNumberOfExtraBeds(0);
+                                tmpNumberOfExtraBeds.set(0);
+                                break;
+                            case 1:
+                                room.setNumberOfExtraBeds(room.getNumberOfExtraBeds() - tmpNumberOfExtraBeds.get());
+                                tmpNumberOfExtraBeds.set(0);
+                                break;
+                            case -1:
+                                int roomDifference = tmpNumberOfExtraBeds.get() - room.getNumberOfExtraBeds();
+                                room.setNumberOfExtraBeds(roomDifference);
+                                tmpNumberOfExtraBeds.set(roomDifference);
+                                break;
+                        }
+
+                    }
+                });
+            }
+        }
     }
 
 
@@ -80,6 +128,30 @@ public class TripService {
     public Optional<List<TripDto>> findTripsOnlyByPageant(@PageableDefault Pageable pageable) {
         return Optional.of(this.tripDao.findAll(pageable).stream().map(TripDto::new).collect(Collectors.toList()));
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Long insertNewTrip(NewTripDto request) {
+        Hotel hotel = hotelDetails.getHotel(request.getHotelDetails());
+        Flight departureFlight = flightService.insertNewFlight(request.getFlightDepartureDetails());
+        Flight returnFlight = flightService.insertNewFlight(request.getFlightReturnDetails());
+        Trip trip = new Trip();
+        trip.setPromoted(false);
+        trip.setCheckoutFromHotel(new Date(request.getTripDetails().getToDate().getTime()));
+        trip.setCheckinToHotel(new Date(request.getTripDetails().getFromDate().getTime()));
+        trip.setFlightIdDeparture(departureFlight);
+        trip.setFlightIdReturn(returnFlight);
+        trip.setHotel(hotel);
+        Trip savedTrip = tripDao.save(trip);
+
+/*        hotel.getListOfTrips().add(savedTrip);
+        departureFlight.getListOfReturnTrips().add(savedTrip);
+        departureFlight.getListOfDepartureTrips().add(savedTrip);
+        returnFlight.getListOfReturnTrips().add(savedTrip);
+        returnFlight.getListOfDepartureTrips().add(savedTrip);*/
+
+        return savedTrip.getId();
+    }
+
 
     /*cross origin resourcer, database replication, load balancing (nginx), high available, provisioning tools, service discovery (consul, eureka),
      elk (elastic seach log stash and kebana), spring cqrs

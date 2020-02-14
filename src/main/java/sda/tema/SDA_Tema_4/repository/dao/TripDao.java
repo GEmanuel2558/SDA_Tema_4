@@ -18,7 +18,7 @@ public interface TripDao extends PagingAndSortingRepository<Trip, Long> {
     @Query("select t from Trip t " +
             "inner join Room r on r.hotel = t.hotel " +
             "where (:departureDate is null or t.checkinToHotel >= :departureDate )" +
-            "and (:returnDate is null or t.checkoutFromHotel <= :returnDate )" +
+            "and ( :returnDate is null or t.checkoutFromHotel <= :returnDate )" +
             "and ( :hotelName is null or t.hotel.name = :hotelName )" +
             "and ( :cityName is null or t.hotel.city.name = :cityName )" +
             "group by t.checkinToHotel, t.checkoutFromHotel " +
@@ -39,15 +39,6 @@ public interface TripDao extends PagingAndSortingRepository<Trip, Long> {
                                         @Param("returnFlightNumber") String returnFlightNumber);
 
 
-    @Query(value = "select new sda.tema.SDA_Tema_4.business.models.CustomRoomEntity(r.id, r.numberOfAvailableDoubleRoom, " +
-            "r.numberOfAvailableSingleRoom, r.numberOfExtraBeds) from Trip t " +
-            "inner join Room r on r.hotel = t.hotel where t.id = :tripId " +
-            "and ( :numberOfDoubleRooms is null or r.numberOfAvailableDoubleRoom >= :numberOfDoubleRooms ) " +
-            "and ( :numberOfAvailableSingleRoom is null or r.numberOfAvailableSingleRoom >= :numberOfAvailableSingleRoom )" +
-            "and ( :extraBed is null or r.numberOfExtraBeds >= :extraBed ) order by r.id asc")
-    List<CustomRoomEntity> findRoomWithTheNumberOfBedsThatTheClientWant(@Param("tripId") Long tripId,
-                                                                        @Param("numberOfDoubleRooms") Integer numberOfDoubleRooms,
-                                                                        @Param("numberOfAvailableSingleRoom") Integer numberOfAvailableSingleRoom,
-                                                                        @Param("extraBed") Integer extraBed);
+
 
 }

@@ -4,9 +4,7 @@ import java.io.Serializable;
 
 public class TripDtoResponse implements Serializable {
 
-    private String continentName,
-            cityName,
-            countryName,
+    private String cityName,
             hotelName,
             airportNameDeparture,
             airportNameReturn,
@@ -16,28 +14,12 @@ public class TripDtoResponse implements Serializable {
 
     private Long roomId;
 
-    public String getContinentName() {
-        return continentName;
-    }
-
-    public void setContinentName(String continentName) {
-        this.continentName = continentName;
-    }
-
     public String getCityName() {
         return cityName;
     }
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
-    }
-
-    public String getCountryName() {
-        return countryName;
-    }
-
-    public void setCountryName(String countryName) {
-        this.countryName = countryName;
     }
 
     public String getHotelName() {
@@ -127,4 +109,5 @@ public class TripDtoResponse implements Serializable {
     public void setNumberOfPersons(Integer numberOfPersons) {
         this.numberOfPersons = numberOfPersons;
     }
+
 }

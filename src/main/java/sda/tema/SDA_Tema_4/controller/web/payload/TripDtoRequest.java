@@ -44,7 +44,11 @@ public class TripDtoRequest implements Serializable {
     }
 
     public Integer getNrOfPersons() {
-        return nrOfPersons;
+        if (null == nrOfPersons) {
+            return 0;
+        } else {
+            return nrOfPersons;
+        }
     }
 
     public void setNrOfPersons(Integer nrOfPersons) {

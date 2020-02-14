@@ -12,6 +12,9 @@ public class TripDto implements Serializable {
     private String checkinFromHotel;
     private String checkoutFromHotel;
     private Boolean promoted;
+    private String continentName;
+    private String cityName;
+    private String countryName;
 
     public TripDto() {
     }
@@ -24,6 +27,9 @@ public class TripDto implements Serializable {
         flightIdDeparture = new FlightDtoResponse(trip.getFlightIdDeparture());
         flightIdReturn = new FlightDtoResponse(trip.getFlightIdReturn());
         hotel = new HotelDto(trip.getHotel());
+        cityName = trip.getHotel().getCity().getName();
+        countryName = trip.getHotel().getCity().getCountry().getName();
+        continentName = trip.getHotel().getCity().getCountry().getContinent().getName();
     }
 
     public FlightDtoResponse getFlightIdDeparture() {
@@ -72,5 +78,29 @@ public class TripDto implements Serializable {
 
     public void setPromoted(Boolean promoted) {
         this.promoted = promoted;
+    }
+
+    public String getContinentName() {
+        return continentName;
+    }
+
+    public void setContinentName(String continentName) {
+        this.continentName = continentName;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
     }
 }
